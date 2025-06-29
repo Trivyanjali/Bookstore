@@ -72,30 +72,29 @@
         <h2>Your Cart</h2>
 
         {% if cart_books %}
-            {% set total = 0 %}
+            {% set total = namespace(value=0) %}
             {% for book in cart_books %}
                 {% set item_total = book.price * book.quantity %}
-                {% set total = total + item_total %}
+                {% set total.value = total.value + item_total %}
                 <div class="cart-item">
                     <img src="{{ book.image_url }}" alt="{{ book.title }}">
                     <div class="item-details">
                         <p><strong>{{ book.title }}</strong></p>
                         <p>Author: {{ book.author }}</p>
-                        <p>Price: ₹{{ book.price }} * {{ book.quantity }} = ₹{{ item_total }}</p>
+                        <p>Price: ₹{{ book.price }} × {{ book.quantity }} = ₹{{ item_total }}</p>
                         <a href="/remove/{{ book.id }}" class="remove-button">Remove</a>
                     </div>
                 </div>
             {% endfor %}
 
-            <p class="total">Total Amount: ₹{{ total }}</p>
+            <p class="total">Total Amount: ₹{{ total.value }}</p>
 
             <div class="checkout">
                 <a href="/checkout">Proceed to Checkout</a>
             </div>
         {% else %}
-            <p>Your cart is empty.</p>
+            <p style="text-align:center; font-size: 18px;">Your cart is empty.</p>
         {% endif %}
-
     </div>
 </body>
 </html>

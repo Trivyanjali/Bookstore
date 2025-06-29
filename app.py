@@ -1,8 +1,11 @@
-# app.py
-from flask import Flask, render_template, redirect, url_for
+#cd Scr app.py
+from flask import Flask, render_template, redirect, url_for,session,request
+from flask_session import Session
 
 app = Flask(__name__)
-
+app.secret_key = 'supersecretkey'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 books = [
     {'id': 1, 'title': 'Atomic Habits', 'author': 'James Clear', 'price': 450, 'stock': 12, 'image_url': 'https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg'},
     {'id': 2, 'title': 'The Psychology of Money', 'author': 'Morgan Housel', 'price': 399, 'stock': 8, 'image_url': 'https://m.media-amazon.com/images/I/71g2ednj0JL._AC_UF1000,1000_QL80_.jpg'},
@@ -68,18 +71,70 @@ def index():
 
 @app.route('/add_to_cart/<int:book_id>')
 def add_to_cart(book_id):
-    # Dummy logic for adding to cart (implement session or database if needed)
-    return redirect(url_for('index'))
+    if 'cart' not in session:
+        session['cart'] = {}
 
-@app.route('/book/<int:book_id>')
-def view_book(book_id):
-    book = next((b for b in books if b['id'] == book_id), None)
-    return f"<h1>{book['title']}</h1><p>Author: {book['author']}</p><p>Price: ₹{book['price']}</p>"
+    cart = session['cart']
+    book_id_str = str(book_id)
+
+    if book_id_str in cart:
+        cart[book_id_str] += 1
+    else:
+        cart[book_id_str] = 1
+
+    session['cart'] = cart
+    return redirect(url_for('cart'))
 
 @app.route('/cart')
 def cart():
-    return "<h2>Your cart is currently empty.</h2>"
+    cart = session.get('cart', {})
+    cart_books = []
 
+    for pid, quantity in cart.items():
+        for book in books:
+            if book['id'] == int(pid):
+                book_copy = book.copy()
+                book_copy['quantity'] = quantity
+                cart_books.append(book_copy)
+
+    return render_template('cart.html', cart_books=cart_books)
+
+@app.route('/remove/<int:book_id>')
+def remove(book_id):
+    cart = session.get('cart', {})
+    cart.pop(str(book_id), None)
+    session['cart'] = cart
+    return redirect(url_for('cart'))
+
+@app.route('/checkout')
+def checkout():
+    session.pop('cart', None)
+    return render_template('checkout.html')
+@app.route('/place_order', methods=['POST'])
+def place_order():
+    name = request.form['name']
+    address = request.form['address']
+    city = request.form['city']
+    pincode = request.form['pincode']
+    upi_id = request.form['upi_id']
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+
+    # Log or store order data
+    print("Order received:")
+    print(f"Name: {name}")
+    print(f"Address: {address}, {city}, {pincode}")
+    print(f"UPI: {upi_id}")
+    print(f"GPS Location: {latitude}, {longitude}")
+
+    # Clear cart
+    session.pop('cart', None)
+
+    return render_template('thankyou.html', name=name)
+@app.route('/payment', methods=['POST'])
+def payment():
+    session['order_details'] = request.form  # Save shipping + location data
+    return render_template('payment.html')  # You create payment.html next
 
 if __name__ == '__main__':
     app.run(debug=True)

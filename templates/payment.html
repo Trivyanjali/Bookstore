@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Options</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px;
+            text-align: center;
+        }
+        .payment-box {
+            background: white;
+            padding: 40px;
+            margin: auto;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .method {
+            margin: 20px 0;
+        }
+        .upi-qr {
+            width: 250px;
+            margin-bottom: 20px;
+        }
+        form button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-box">
+        <h2>Select Payment Method</h2>
+
+        <div class="method">
+            <h3>UPI QR Code</h3>
+            <img class="upi-qr" 
+                 src="https://media.istockphoto.com/id/828088276/vector/qr-code-illustration.jpg?s=612x612&w=0&k=20&c=FnA7agr57XpFi081ZT5sEmxhLytMBlK4vzdQxt8A70M=" alt="Scan to Pay via UPI">
+            <h2>Scan this QR using any UPI app to pay ₹{{ total }}</h2>
+        </div>
+
+        <form method="POST" action="/place_order">
+            <input type="hidden" name="name" value="{{ session['order_details']['name'] }}">
+            <input type="hidden" name="address" value="{{ session['order_details']['address'] }}">
+            <input type="hidden" name="city" value="{{ session['order_details']['city'] }}">
+            <input type="hidden" name="pincode" value="{{ session['order_details']['pincode'] }}">
+            <input type="hidden" name="latitude" value="{{ session['order_details']['latitude'] }}">
+            

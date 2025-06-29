@@ -1,4 +1,4 @@
-#cd Scr app.py
+
 from flask import Flask, render_template, redirect, url_for,session,request
 from flask_session import Session
 
@@ -84,6 +84,13 @@ def add_to_cart(book_id):
 
     session['cart'] = cart
     return redirect(url_for('cart'))
+@app.route('/book/<int:book_id>')
+def view_book(book_id):
+    book = next((b for b in books if b['id'] == book_id), None)
+    if not book:
+        return "<h2>Book not found</h2>", 404
+    return render_template('view_book.html', book=book)
+
 
 @app.route('/cart')
 def cart():

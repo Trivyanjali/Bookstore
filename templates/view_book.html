@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ book.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .book-container {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            text-align: center;
+        }
+        .book-container img {
+            max-width: 250px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .book-container h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .book-container p {
+            font-size: 18px;
+            margin: 6px 0;
+        }
+        .book-container a.button {
+            display: inline-block;
+            margin: 15px 5px 0;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .book-container a.button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="book-container">
+        <img src="{{ book.image_url }}" alt="{{ book.title }}">
+        <h1>{{ book.title }}</h1>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Price:</strong> ₹{{ book.price }}</p>
+        <p><strong>Available Stock:</strong> {{ book.stock }}</p>
+
+        <a class="button" href="{{ url_for('add_to_cart', book_id=book.id) }}">Add to Cart</a>
+        <a class="button" href="{{ url_for('index') }}">Back to Home</a>
+    </div>
+</body>
+</html>

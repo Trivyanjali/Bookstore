@@ -36,13 +36,28 @@
         .item-details p {
             margin: 5px 0;
         }
-        .remove-button {
-            color: #d32f2f;
-            text-decoration: none;
+        .remove-button, .view-button {
+            display: inline-block;
+            margin-top: 8px;
             font-size: 14px;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+        }
+        .remove-button {
+            color: #fff;
+            background-color: #d32f2f;
         }
         .remove-button:hover {
-            text-decoration: underline;
+            background-color: #b71c1c;
+        }
+        .view-button {
+            color: #fff;
+            background-color: #007bff;
+            margin-left: 10px;
+        }
+        .view-button:hover {
+            background-color: #0056b3;
         }
         .total {
             font-weight: bold;
@@ -61,6 +76,8 @@
             text-decoration: none;
             border-radius: 5px;
             font-size: 16px;
+            display: inline-block;
+            margin: 10px;
         }
         .checkout a:hover {
             background-color: #0b59d0;
@@ -83,6 +100,7 @@
                         <p>Author: {{ book.author }}</p>
                         <p>Price: ₹{{ book.price }} × {{ book.quantity }} = ₹{{ item_total }}</p>
                         <a href="/remove/{{ book.id }}" class="remove-button">Remove</a>
+                        <a href="/book/{{ book.id }}" class="view-button">View</a>
                     </div>
                 </div>
             {% endfor %}
@@ -91,9 +109,13 @@
 
             <div class="checkout">
                 <a href="/checkout">Proceed to Checkout</a>
+                <a href="/" style="background-color: #6c757d;">Back to Home</a>
             </div>
         {% else %}
             <p style="text-align:center; font-size: 18px;">Your cart is empty.</p>
+            <div class="checkout">
+                <a href="/" style="background-color: #6c757d;">Back to Home</a>
+            </div>
         {% endif %}
     </div>
 </body>

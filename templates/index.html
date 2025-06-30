@@ -41,6 +41,65 @@
       background-color: #e6b800;
     }
 
+    
+    #chatbot-bar {
+      margin: 30px auto 0;
+      max-width: 600px;
+      background: white;
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(74,144,226,0.3);
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    #chatbot-bar label {
+      font-weight: bold;
+      color: #003366;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    #chatlog {
+      background-color: #f1f8ff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    #chatbot-bar-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    #chatInput {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    #chatSearchButton {
+      padding: 8px 16px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #chatSearchButton:hover {
+      background-color: #0055aa;
+    }
+
     .book-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -128,9 +187,19 @@
 <body>
 
   <header>
-    <h1 style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-size:35px;">📚 Online Bookstore 📚</h1>
+    <h1 style="font-family: Cambria, serif; font-size:35px;">📚 Online Bookstore 📚</h1>
     <a href="/cart" class="cart-link">🛒 View Cart</a>
   </header>
+
+  <!-- ChatBot Search Bar -->
+  <div id="chatbot-bar">
+    <label for="chatInput">🤖 BookBot - Search Books</label>
+    <div id="chatlog"></div>
+    <div id="chatbot-bar-input">
+      <input type="text" id="chatInput" placeholder="Type a book title and press Enter..." onkeydown="if(event.key==='Enter') sendMessage()">
+      <button id="chatSearchButton" onclick="sendMessage()">🔍 Search</button>
+    </div>
+  </div>
 
   <main>
     <div class="book-grid">
@@ -152,9 +221,44 @@
     </div>
   </main>
 
-  <footer>
-    © 2025 Online Bookstore | All Rights Reserved.
-  </footer>
+<footer style="background-color: #003366; color: white; text-align: center; padding: 20px; font-size: 14px;">
+  <div>© 2025 Online Bookstore | All Rights Reserved.</div>
+  <div>📞 Contact: 1234567892</div>
+</footer>
+
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatlog = document.getElementById('chatlog');
+      chatlog.innerHTML += `<div><b>You:</b> ${message}</div>`;
+
+      fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.results.length === 0) {
+          chatlog.innerHTML += `<div><b>BookBot:</b> No books found for "<i>${message}</i>".</div>`;
+        } else {
+          let response = '<b>BookBot:</b> Matches:<ul>';
+          data.results.forEach(book => {
+            response += `<li><a href="/book/${book.id}" target="_blank">${book.title}</a></li>`;
+          });
+          response += '</ul>';
+          chatlog.innerHTML += `<div>${response}</div>`;
+        }
+        chatlog.scrollTop = chatlog.scrollHeight;
+      });
+
+      input.value = '';
+    }
+  </script>
 
 </body>
 </html>

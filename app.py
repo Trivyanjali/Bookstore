@@ -127,21 +127,26 @@ def place_order():
     latitude = request.form.get('latitude')
     longitude = request.form.get('longitude')
 
-    # Log or store order data
+    
     print("Order received:")
     print(f"Name: {name}")
     print(f"Address: {address}, {city}, {pincode}")
     print(f"UPI: {upi_id}")
     print(f"GPS Location: {latitude}, {longitude}")
 
-    # Clear cart
+   
     session.pop('cart', None)
 
     return render_template('thankyou.html', name=name)
 @app.route('/payment', methods=['POST'])
 def payment():
-    session['order_details'] = request.form  # Save shipping + location data
-    return render_template('payment.html')  # You create payment.html next
+    session['order_details'] = request.form 
+    return render_template('payment.html') 
+@app.route('/search', methods=['POST'])
+def search():
+    query = request.json.get('query', '').lower()
+    results = [book for book in books if query in book['title'].lower()]
+    return {'results': results[:5]}
 
 if __name__ == '__main__':
     app.run(debug=True)

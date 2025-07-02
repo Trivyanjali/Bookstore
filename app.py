@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, redirect, url_for,session,request
+from flask import Flask, render_template, redirect, url_for,session,request,jsonify
 from flask_session import Session
 
 app = Flask(__name__)
@@ -94,6 +94,7 @@ def view_book(book_id):
 
 @app.route('/cart')
 def cart():
+    
     cart = session.get('cart', {})
     cart_books = []
 
@@ -142,11 +143,16 @@ def place_order():
 def payment():
     session['order_details'] = request.form 
     return render_template('payment.html') 
+@app.route('/gps')
+def gps_location():
+    return render_template('gps.html')
 @app.route('/search', methods=['POST'])
 def search():
     query = request.json.get('query', '').lower()
     results = [book for book in books if query in book['title'].lower()]
     return {'results': results[:5]}
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

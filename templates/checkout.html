@@ -43,32 +43,39 @@
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            margin-top: 15px;
+            margin-top: 10px;
             cursor: pointer;
         }
         button:hover {
             background-color: #0b59d0;
+        }
+        #location-status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: green;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="confirmation-box">
         <h2>Shipping Details</h2>
-        <form method="POST" action="/payment">
+        <form id="shippingForm" method="POST" action="/payment">
             <label for="name">Full Name</label>
             <input type="text" name="name" required>
 
             <label for="address">Address</label>
-            <input type="text" name="address" required>
+            <input type="text" name="address" id="address" required>
 
             <label for="city">City</label>
-            <input type="text" name="city" required>
+            <input type="text" name="city" id="city" required>
 
             <label for="pincode">PIN Code</label>
-            <input type="text" name="pincode" required>
+            <input type="text" name="pincode" id="pincode" required>
 
             <label>Location</label>
             <button type="button" onclick="getLocation()">📍 Use GPS</button>
+            <div id="location-status">Location not captured yet.</div>
 
             <input type="hidden" name="latitude" id="lat">
             <input type="hidden" name="longitude" id="lon">
@@ -80,16 +87,41 @@
 
     <script>
         function getLocation() {
+            const status = document.getElementById('location-status');
+
             if (navigator.geolocation) {
+                status.innerText = "📡 Getting location...";
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('lat').value = position.coords.latitude;
-                    document.getElementById('lon').value = position.coords.longitude;
-                    alert("📍 Location Captured");
-                }, function() {
-                    alert("Failed to get location.");
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    document.getElementById('lat').value = lat;
+                    document.getElementById('lon').value = lon;
+
+                    status.innerText = `📍 Location captured: (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                    status.style.color = "green";
+
+                    // Reverse geocode to get address
+                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const address = data.address;
+                            document.getElementById('address').value = address.road || address.suburb || '';
+                            document.getElementById('city').value = address.city || address.town || address.village || '';
+                            document.getElementById('pincode').value = address.postcode || '';
+                        })
+                        .catch(error => {
+                            console.error('Geocoding error:', error);
+                            status.innerText = "⚠️ Location found but address not available.";
+                        });
+
+                }, function(error) {
+                    status.innerText = "❌ Failed to get location.";
+                    status.style.color = "red";
                 });
             } else {
-                alert("Geolocation is not supported by your browser.");
+                status.innerText = "❌ Geolocation not supported by this browser.";
+                status.style.color = "red";
             }
         }
     </script>

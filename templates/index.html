@@ -198,6 +198,7 @@
     <div id="chatbot-bar-input">
       <input type="text" id="chatInput" placeholder="Type a book title and press Enter..." onkeydown="if(event.key==='Enter') sendMessage()">
       <button id="chatSearchButton" onclick="sendMessage()">🔍 Search</button>
+      <button onclick="startVoiceSearch()" title="Voice Search">🎤</button>
     </div>
   </div>
 
@@ -261,4 +262,31 @@
   </script>
 
 </body>
+<script>
+  function startVoiceSearch() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert("Your browser doesn't support speech recognition.");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      document.getElementById("chatInput").value = transcript;
+      sendMessage(); // auto-trigger search
+    };
+
+    recognition.onerror = function(event) {
+      alert("Error occurred in recognition: " + event.error);
+    };
+
+    recognition.start();
+  }
+</script>
+
 </html>

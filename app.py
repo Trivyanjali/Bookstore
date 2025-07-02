@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, redirect, url_for,session,request,flash
 from flask_session import Session
-
+from difflib import get_close_matches
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -132,10 +132,7 @@ def place_order():
     print(f"Address: {address}, {city}, {pincode}")
     print(f"UPI: {upi_id}")
     print(f"GPS Location: {latitude}, {longitude}")
-
-   
     session.pop('cart', None)
-
     return render_template('thankyou.html', name=name)
 @app.route('/payment', methods=['POST'])
 def payment():
@@ -144,29 +141,46 @@ def payment():
 @app.route('/gps')
 def gps_location():
     return render_template('gps.html')
+
+
+
 @app.route('/search', methods=['POST'])
 def search():
     query = request.json.get('query', '').lower()
-    results = [book for book in books if query in book['title'].lower()]
+
+    # Build a list of all searchable strings (titles + authors)
+    searchable_texts = [book['title'].lower() for book in books] + [book['author'].lower() for book in books]
+
+    # Get close matches from titles and authors
+    matches = get_close_matches(query, searchable_texts, n=3, cutoff=0.5)
+
+    # Return books where either title or author matches
+    results = [
+        book for book in books
+        if book['title'].lower() in matches or book['author'].lower() in matches
+    ]
+
     return {'results': results[:5]}
 
-from flask import session, redirect, url_for, flash
+
+
+
 
 @app.route('/return/<int:product_id>', methods=['POST'])
 def return_product(product_id):
-    # Get the current cart from session
+   
     cart = session.get('cart', {})
 
-    # Check if the product is in the cart
+    
     if str(product_id) in cart:
-        # Remove it from the cart
+    
         del cart[str(product_id)]
         session['cart'] = cart
         flash('Product returned successfully!', 'success')
     else:
         flash('Product not found in cart.', 'error')
 
-    # Redirect back to the cart page
+   
     return redirect(url_for('cart'))
 
 

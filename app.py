@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, redirect, url_for,session,request,jsonify
+from flask import Flask, render_template, redirect, url_for,session,request,flash
 from flask_session import Session
 
 app = Flask(__name__)
@@ -127,8 +127,6 @@ def place_order():
     upi_id = request.form['upi_id']
     latitude = request.form.get('latitude')
     longitude = request.form.get('longitude')
-
-    
     print("Order received:")
     print(f"Name: {name}")
     print(f"Address: {address}, {city}, {pincode}")
@@ -152,6 +150,24 @@ def search():
     results = [book for book in books if query in book['title'].lower()]
     return {'results': results[:5]}
 
+from flask import session, redirect, url_for, flash
+
+@app.route('/return/<int:product_id>', methods=['POST'])
+def return_product(product_id):
+    # Get the current cart from session
+    cart = session.get('cart', {})
+
+    # Check if the product is in the cart
+    if str(product_id) in cart:
+        # Remove it from the cart
+        del cart[str(product_id)]
+        session['cart'] = cart
+        flash('Product returned successfully!', 'success')
+    else:
+        flash('Product not found in cart.', 'error')
+
+    # Redirect back to the cart page
+    return redirect(url_for('cart'))
 
 
 if __name__ == '__main__':

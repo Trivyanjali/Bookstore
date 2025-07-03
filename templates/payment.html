@@ -1,84 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Payment Options</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding: 40px;
-            text-align: center;
-        }
-        .payment-box {
-            background: white;
-            padding: 40px;
-            margin: auto;
-            max-width: 500px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        h2, h3 {
-            color: #333;
-        }
-        .method {
-            margin: 20px 0;
-        }
-        .upi-qr {
-            width: 250px;
-            margin-bottom: 20px;
-        }
-        form button {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 30px;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        form button:hover {
-            background-color: #218838;
-        }
-        .back-home {
-            display: inline-block;
-            margin-top: 20px;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s;
-        }
-        .back-home:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Payment Options</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f4f7;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .payment-box {
+      background: white;
+      border-radius: 12px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #003366;
+      margin-bottom: 30px;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .radio-group label {
+      background: #e6f0ff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .radio-group input {
+      margin-right: 8px;
+    }
+
+    .method {
+      margin-top: 30px;
+    }
+
+    .payment-section {
+      display: none;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+
+    .payment-section h3 {
+      margin-top: 0;
+      color: #003366;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .upi-qr {
+      width: 250px;
+      display: block;
+      margin: 0 auto 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button[type="submit"] {
+      display: block;
+      margin: 30px auto 0;
+      background-color: #28a745;
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .back-home {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      text-decoration: none;
+      color: white;
+      background-color: #007bff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .back-home:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-    <div class="payment-box">
-        <h2>Select Payment Method</h2>
+  <div class="payment-box">
+    <h2>Choose Your Payment Method</h2>
 
-        <div class="method">
-            <h3>UPI QR Code</h3>
-            <img class="upi-qr" 
-                 src="https://media.istockphoto.com/id/828088276/vector/qr-code-illustration.jpg?s=612x612&w=0&k=20&c=FnA7agr57XpFi081ZT5sEmxhLytMBlK4vzdQxt8A70M=" 
-                 alt="Scan to Pay via UPI">
-            <h2>Scan this QR using any UPI app to pay ₹{{ total }}</h2>
-        </div>
+    <form method="POST" action="/place_order">
+      <div class="radio-group">
+        <label><input type="radio" name="payment_method" value="upi" checked> UPI</label>
+        <label><input type="radio" name="payment_method" value="card"> Credit/Debit Card</label>
+        <label><input type="radio" name="payment_method" value="netbanking"> Net Banking</label>
+        <label><input type="radio" name="payment_method" value="cod"> Cash on Delivery</label>
+      </div>
 
-        <form method="POST" action="/place_order">
-            <input type="hidden" name="name" value="{{ session['order_details']['name'] }}">
-            <input type="hidden" name="address" value="{{ session['order_details']['address'] }}">
-            <input type="hidden" name="city" value="{{ session['order_details']['city'] }}">
-            <input type="hidden" name="pincode" value="{{ session['order_details']['pincode'] }}">
-            <input type="hidden" name="upi_id" value="{{ session['order_details']['upi_id'] }}">
-            <input type="hidden" name="latitude" value="{{ session['order_details']['latitude'] }}">
-            <input type="hidden" name="longitude" value="{{ session['order_details']['longitude'] }}">
-            <button type="submit">Confirm Payment</button>
-        </form>
+      <!-- UPI Section -->
+      <div class="payment-section" id="upi-section">
+        <h3>Scan to Pay ₹{{ total }}</h3>
+        <img class="upi-qr" src="https://media.istockphoto.com/id/828088276/vector/qr-code-illustration.jpg?s=612x612&w=0&k=20&c=FnA7agr57XpFi081ZT5sEmxhLytMBlK4vzdQxt8A70M=" alt="UPI QR Code">
+      </div>
 
-        <a class="back-home" href="{{ url_for('index') }}">Back to Home</a>
-    </div>
+      <!-- Card Section -->
+      <div class="payment-section" id="card-section">
+        <h3>Enter Card Details</h3>
+        <input type="text" name="card_number" placeholder="Card Number">
+        <input type="text" name="card_name" placeholder="Name on Card">
+        <input type="text" name="expiry" placeholder="MM/YY">
+        <input type="text" name="cvv" placeholder="CVV">
+      </div>
+
+      <!-- Net Banking Section -->
+      <div class="payment-section" id="netbanking-section">
+        <h3>Net Banking</h3>
+        <select name="bank">
+          <option value="">-- Select Bank --</option>
+          <option value="sbi">SBI</option>
+          <option value="hdfc">HDFC</option>
+          <option value="icici">ICICI</option>
+          <option value="axis">Axis</option>
+        </select>
+        <input type="text" name="netbanking_user" placeholder="Username">
+        <input type="password" name="netbanking_pass" placeholder="Password">
+      </div>
+
+      <!-- COD Section -->
+      <div class="payment-section" id="cod-section">
+        <h3>Cash on Delivery</h3>
+        <p>Pay ₹{{ total }} at your doorstep.</p>
+      </div>
+
+      <!-- Hidden order fields -->
+      <input type="hidden" name="name" value="{{ session['order_details']['name'] }}">
+      <input type="hidden" name="address" value="{{ session['order_details']['address'] }}">
+      <input type="hidden" name="city" value="{{ session['order_details']['city'] }}">
+      <input type="hidden" name="pincode" value="{{ session['order_details']['pincode'] }}">
+      <input type="hidden" name="upi_id" value="{{ session['order_details']['upi_id'] }}">
+      <input type="hidden" name="latitude" value="{{ session['order_details']['latitude'] }}">
+      <input type="hidden" name="longitude" value="{{ session['order_details']['longitude'] }}">
+
+      <button type="submit">Confirm Payment</button>
+    </form>
+
+    <a class="back-home" href="{{ url_for('index') }}">⬅ Back to Home</a>
+  </div>
+
+  <script>
+    const sections = {
+      upi: document.getElementById('upi-section'),
+      card: document.getElementById('card-section'),
+      netbanking: document.getElementById('netbanking-section'),
+      cod: document.getElementById('cod-section')
+    };
+
+    function showSection(method) {
+      for (let key in sections) {
+        sections[key].style.display = (key === method) ? 'block' : 'none';
+      }
+    }
+
+    const radios = document.querySelectorAll('input[name="payment_method"]');
+    radios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        showSection(radio.value);
+      });
+    });
+
+    // Show UPI by default
+    showSection('upi');
+  </script>
 </body>
 </html>

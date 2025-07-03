@@ -1,0 +1,41 @@
+<!-- templates/track.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Track Order</title></head>
+<body>
+    <h2>Track Your Order</h2>
+    <form method="post">
+        <label>Email:</label>
+        <input type="email" name="email" required>
+        <br>
+        <label>Order ID:</label>
+        <input type="text" name="order_id" required>
+        <br><br>
+        <button type="submit">Track</button>
+    </form>
+
+    {% if order %}
+        <hr>
+        <h3>Order Details:</h3>
+        <p><strong>Name:</strong> {{ order.name }}</p>
+        <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Address:</strong> {{ order.address }}</p>
+        <p><strong>Time:</strong> {{ order.timestamp }}</p>
+        <h4>Books Ordered:</h4>
+        <ul>
+        {% for book in order.items %}
+            <li>{{ book.title }} - ₹{{ book.price }} x {{ book.quantity }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="color:red;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
